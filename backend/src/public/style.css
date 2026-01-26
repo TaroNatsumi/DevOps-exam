@@ -1,0 +1,155 @@
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;600;700&display=swap");
+
+:root {
+  --bg: #f6f3ef;
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --accent: #0f766e;
+  --accent-dark: #0b615b;
+  --shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: "DM Sans", sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at top, #fef3c7 0%, #f6f3ef 40%, #eef2ff 100%);
+  min-height: 100vh;
+}
+
+.site-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.brand {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.nav a {
+  margin-left: 16px;
+  text-decoration: none;
+  color: var(--text);
+  font-weight: 600;
+}
+
+.content {
+  padding: 40px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.hero {
+  background: var(--card);
+  padding: 28px;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+  margin-bottom: 32px;
+}
+
+.hero h1 {
+  margin: 0 0 12px;
+  font-size: 32px;
+}
+
+.hero p {
+  margin: 0 0 20px;
+  color: var(--muted);
+}
+
+.panel {
+  background: var(--card);
+  padding: 24px;
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+.button {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  padding: 10px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+}
+
+.button:hover {
+  background: var(--accent-dark);
+}
+
+.tickets {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.ticket {
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+.ticket-title {
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.ticket-meta {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.form {
+  display: grid;
+  gap: 16px;
+}
+
+label {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+}
+
+input,
+textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid rgba(15, 23, 42, 0.15);
+  font: inherit;
+}
+
+.empty {
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .site-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px 20px;
+  }
+
+  .content {
+    padding: 24px 20px;
+  }
+}

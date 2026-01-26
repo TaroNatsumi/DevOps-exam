@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>New Ticket - Helpdesk Portal</title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand">Helpdesk Portal</div>
+      <nav class="nav">
+        <a href="/">Tickets</a>
+        <a href="/new">New Ticket</a>
+      </nav>
+    </header>
+    <main class="content">
+      <section class="panel">
+        <h1>Create a new ticket</h1>
+        <form class="form" action="/tickets" method="post">
+          <label>
+            Title
+            <input type="text" name="title" required maxlength="200" placeholder="Printer is down" />
+          </label>
+          <label>
+            Description
+            <textarea name="description" rows="5" placeholder="Add useful details"></textarea>
+          </label>
+          <button class="button" type="submit">Submit ticket</button>
+        </form>
+      </section>
+    </main>
+  </body>
+</html>

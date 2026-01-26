@@ -1,0 +1,353 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasources
+  namespace: observability
+data:
+  datasources.yml: |
+    apiVersion: 1
+
+    datasources:
+      - name: Prometheus
+        type: prometheus
+        access: proxy
+        url: http://prometheus:9090
+        isDefault: true
+
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki:3100
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provisioning
+  namespace: observability
+data:
+  dashboards.yml: |
+    apiVersion: 1
+
+    providers:
+      - name: "helpdesk"
+        orgId: 1
+        folder: "Helpdesk"
+        type: file
+        disableDeletion: true
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: observability
+data:
+  helpdesk.json: |
+    {
+      "uid": "helpdesk-overview",
+      "title": "Helpdesk Overview",
+      "tags": ["helpdesk", "ops"],
+      "timezone": "browser",
+      "schemaVersion": 39,
+      "version": 1,
+      "refresh": "10s",
+      "time": {
+        "from": "now-6h",
+        "to": "now"
+      },
+      "templating": {
+        "list": []
+      },
+      "panels": [
+        {
+          "id": 1,
+          "type": "stat",
+          "title": "Tickets Created (total)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "gridPos": {"h": 5, "w": 6, "x": 0, "y": 0},
+          "targets": [
+            {
+              "expr": "sum(helpdesk_tickets_created_total)",
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "horizontal",
+            "textMode": "auto",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          }
+        },
+        {
+          "id": 2,
+          "type": "stat",
+          "title": "DB Up",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "gridPos": {"h": 5, "w": 4, "x": 6, "y": 0},
+          "targets": [
+            {
+              "expr": "pg_up",
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "reduceOptions": {
+              "calcs": ["lastNotNull"],
+              "fields": "",
+              "values": false
+            },
+            "orientation": "horizontal",
+            "textMode": "value",
+            "colorMode": "value",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "fieldConfig": {
+            "defaults": {
+              "mappings": [
+                {"type": "value", "options": {"0": {"text": "DOWN"}, "1": {"text": "UP"}}}
+              ],
+              "thresholds": {
+                "mode": "absolute",
+                "steps": [
+                  {"color": "red", "value": null},
+                  {"color": "green", "value": 1}
+                ]
+              }
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 3,
+          "type": "timeseries",
+          "title": "DB Connections",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "gridPos": {"h": 5, "w": 6, "x": 10, "y": 0},
+          "targets": [
+            {
+              "expr": "pg_stat_database_numbackends{datname=\"helpdesk\"}",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "none"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 4,
+          "type": "timeseries",
+          "title": "Tickets Created Rate",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "gridPos": {"h": 5, "w": 8, "x": 16, "y": 0},
+          "targets": [
+            {
+              "expr": "rate(helpdesk_tickets_created_total[5m])",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 5,
+          "type": "timeseries",
+          "title": "App CPU",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "gridPos": {"h": 6, "w": 8, "x": 0, "y": 5},
+          "targets": [
+            {
+              "expr": "rate(process_cpu_seconds_total[5m])",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "cores"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 6,
+          "type": "timeseries",
+          "title": "App Memory (RSS)",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "gridPos": {"h": 6, "w": 8, "x": 8, "y": 5},
+          "targets": [
+            {
+              "expr": "process_resident_memory_bytes",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bytes"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 7,
+          "type": "timeseries",
+          "title": "DB Transactions",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "gridPos": {"h": 6, "w": 8, "x": 16, "y": 5},
+          "targets": [
+            {
+              "expr": "rate(pg_stat_database_xact_commit{datname=\"helpdesk\"}[5m])",
+              "refId": "A",
+              "legendFormat": "commit"
+            },
+            {
+              "expr": "rate(pg_stat_database_xact_rollback{datname=\"helpdesk\"}[5m])",
+              "refId": "B",
+              "legendFormat": "rollback"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "ops"
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 8,
+          "type": "timeseries",
+          "title": "DB Cache Hit Ratio",
+          "datasource": {
+            "type": "prometheus",
+            "uid": "Prometheus"
+          },
+          "gridPos": {"h": 6, "w": 8, "x": 0, "y": 11},
+          "targets": [
+            {
+              "expr": "sum(rate(pg_stat_database_blks_hit{datname=\"helpdesk\"}[5m])) / (sum(rate(pg_stat_database_blks_hit{datname=\"helpdesk\"}[5m])) + sum(rate(pg_stat_database_blks_read{datname=\"helpdesk\"}[5m])))",
+              "refId": "A"
+            }
+          ],
+          "fieldConfig": {
+            "defaults": {
+              "unit": "percentunit",
+              "min": 0,
+              "max": 1
+            },
+            "overrides": []
+          }
+        },
+        {
+          "id": 9,
+          "type": "logs",
+          "title": "Helpdesk Logs",
+          "datasource": {
+            "type": "loki",
+            "uid": "Loki"
+          },
+          "gridPos": {"h": 10, "w": 16, "x": 8, "y": 11},
+          "targets": [
+            {
+              "expr": "{job=\"helpdesk\"}",
+              "refId": "A"
+            }
+          ],
+          "options": {
+            "showTime": true,
+            "wrapLogMessage": false,
+            "prettifyLogMessage": false
+          }
+        }
+      ]
+    }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: observability
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      containers:
+        - name: grafana
+          image: grafana/grafana:10.3.1
+          ports:
+            - containerPort: 3000
+          env:
+            - name: GF_SECURITY_ADMIN_PASSWORD
+              value: admin
+          volumeMounts:
+            - name: datasources
+              mountPath: /etc/grafana/provisioning/datasources/datasources.yml
+              subPath: datasources.yml
+            - name: dashboard-provisioning
+              mountPath: /etc/grafana/provisioning/dashboards/dashboards.yml
+              subPath: dashboards.yml
+            - name: dashboards
+              mountPath: /var/lib/grafana/dashboards
+      volumes:
+        - name: datasources
+          configMap:
+            name: grafana-datasources
+        - name: dashboard-provisioning
+          configMap:
+            name: grafana-dashboard-provisioning
+        - name: dashboards
+          configMap:
+            name: grafana-dashboards
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: observability
+spec:
+  selector:
+    app: grafana
+  ports:
+    - port: 3000
+      targetPort: 3000
+      name: http

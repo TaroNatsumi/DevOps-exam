@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helpdesk.fullname" . }}-postgres-exporter
+  labels:
+    app.kubernetes.io/name: {{ include "helpdesk.name" . }}
+    app.kubernetes.io/component: postgres-exporter
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "helpdesk.name" . }}
+      app.kubernetes.io/component: postgres-exporter
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "helpdesk.name" . }}
+        app.kubernetes.io/component: postgres-exporter
+    spec:
+      containers:
+        - name: postgres-exporter
+          image: {{ .Values.postgresExporter.image }}
+          ports:
+            - name: metrics
+              containerPort: {{ .Values.postgresExporter.port }}
+          env:
+            - name: DATA_SOURCE_NAME
+              value: postgresql://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@{{ include "helpdesk.fullname" . }}-postgres:{{ .Values.postgres.port }}/{{ .Values.postgres.db }}?sslmode=disable
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "helpdesk.fullname" . }}-postgres-exporter
+  annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9187"
+    prometheus.io/path: "/metrics"
+spec:
+  ports:
+    - port: {{ .Values.postgresExporter.port }}
+      targetPort: metrics
+      name: metrics
+  selector:
+    app.kubernetes.io/name: {{ include "helpdesk.name" . }}
+    app.kubernetes.io/component: postgres-exporter

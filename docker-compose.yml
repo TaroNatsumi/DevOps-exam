@@ -1,0 +1,77 @@
+services:
+  app:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgres://helpdesk:helpdesk@db:5432/helpdesk
+      APP_LOG_PATH: /var/log/app/app.log
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - app-logs:/var/log/app
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: helpdesk
+      POSTGRES_PASSWORD: helpdesk
+      POSTGRES_DB: helpdesk
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U helpdesk -d helpdesk"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  postgres_exporter:
+    image: prometheuscommunity/postgres-exporter:v0.15.0
+    environment:
+      DATA_SOURCE_NAME: postgresql://helpdesk:helpdesk@db:5432/helpdesk?sslmode=disable
+    ports:
+      - "9187:9187"
+    depends_on:
+      - db
+
+  prometheus:
+    image: prom/prometheus:v2.49.1
+    volumes:
+      - ./infra/local/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    ports:
+      - "9090:9090"
+
+  loki:
+    image: grafana/loki:2.9.3
+    command: -config.file=/etc/loki/local-config.yaml
+    volumes:
+      - ./infra/local/loki.yaml:/etc/loki/local-config.yaml:ro
+    ports:
+      - "3100:3100"
+
+  promtail:
+    image: grafana/promtail:2.9.3
+    command: -config.file=/etc/promtail/config.yaml
+    volumes:
+      - ./infra/local/promtail.yaml:/etc/promtail/config.yaml:ro
+      - app-logs:/var/log/app:ro
+    depends_on:
+      - loki
+
+  grafana:
+    image: grafana/grafana:10.3.1
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: admin
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./infra/local/grafana/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./infra/local/grafana/dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - ./infra/local/grafana/dashboards:/var/lib/grafana/dashboards:ro
+
+volumes:
+  db-data:
+  app-logs:

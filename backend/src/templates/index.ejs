@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Helpdesk Portal</title>
+    <link rel="stylesheet" href="/style.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="brand">Helpdesk Portal</div>
+      <nav class="nav">
+        <a href="/">Tickets</a>
+        <a href="/new">New Ticket</a>
+      </nav>
+    </header>
+    <main class="content">
+      <section class="hero">
+        <h1>Team requests in one place</h1>
+        <p>Create small internal tasks, track status, and keep context together.</p>
+        <a class="button" href="/new">Create a ticket</a>
+      </section>
+
+      <section class="panel">
+        <h2>Latest tickets</h2>
+        <% if (tickets.length) { %>
+          <div class="tickets">
+            <% tickets.forEach(function(ticket) { %>
+              <div class="ticket">
+                <div class="ticket-title"><%= ticket.title %></div>
+                <div class="ticket-meta">#<%= ticket.id %> · <%= ticket.status %> · <%= ticket.created_at %></div>
+                <% if (ticket.description) { %>
+                  <p><%= ticket.description %></p>
+                <% } %>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <p class="empty">No tickets yet. Create the first one.</p>
+        <% } %>
+      </section>
+    </main>
+  </body>
+</html>
