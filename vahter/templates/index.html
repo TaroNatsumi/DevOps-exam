@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vahter - Employee Check-in</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🛂 Vahter Check-in</h1>
+            <p>Employee Registration System</p>
+        </header>
+
+        <section class="check-in-form">
+            <h2>New Check-in</h2>
+            <form action="/" method="POST">
+                <div class="form-group">
+                    <label for="name">Name:</label>
+                    <input type="text" id="name" name="name" required placeholder="John Doe">
+                </div>
+                <div class="form-group">
+                    <label for="role">Role:</label>
+                    <select id="role" name="role" required>
+                        <option value="" disabled selected>Select Role</option>
+                        <option value="Developer">Developer</option>
+                        <option value="Designer">Designer</option>
+                        <option value="Manager">Manager</option>
+                        <option value="HR">HR</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="note">Note (Optional):</label>
+                    <textarea id="note" name="note" placeholder="Working on Vahter project..."></textarea>
+                </div>
+                <button type="submit">Check In</button>
+            </form>
+        </section>
+
+        <section class="records-list">
+            <h2>Recent Check-ins</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Time</th>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Note</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in records %}
+                    <tr>
+                        <td>{{ record.timestamp }}</td>
+                        <td>{{ record.name }}</td>
+                        <td><span class="badge {{ record.role|lower }}">{{ record.role }}</span></td>
+                        <td>{{ record.note }}</td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="4" class="empty">No check-ins yet. Be the first!</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </section>
+
+        <footer>
+            <p>Vahter v1.0 | <a href="/metrics">Metrics</a></p>
+        </footer>
+    </div>
+</body>
+</html>

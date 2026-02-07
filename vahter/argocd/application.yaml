@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: vahter
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/TaroNatsumi/DevOps-exam.git
+    targetRevision: main
+    path: vahter/helm/vahter
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: vahter
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
