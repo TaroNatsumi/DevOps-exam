@@ -17,7 +17,7 @@ function writeLog(level, message) {
   process.stdout.write(line);
   if (logPath) {
     fs.mkdirSync(path.dirname(logPath), { recursive: true });
-    fs.appendFile(logPath, line, () => {});
+    fs.appendFile(logPath, line, () => { });
   }
 }
 
@@ -40,6 +40,13 @@ const ticketsCreated = new promClient.Counter({
   registers: [register],
 });
 
+const ticketCreationDuration = new promClient.Histogram({
+  name: "helpdesk_ticket_creation_duration_seconds",
+  help: "Duration of ticket creation in seconds",
+  labelNames: ["status"],
+  registers: [register],
+});
+
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "templates"));
 
@@ -55,9 +62,9 @@ app.get("/", async (_req, res) => {
       ...ticket,
       created_at: ticket.created_at
         ? new Date(ticket.created_at)
-            .toISOString()
-            .slice(0, 16)
-            .replace("T", " ")
+          .toISOString()
+          .slice(0, 16)
+          .replace("T", " ")
         : "",
     }));
     res.render("index", { tickets });
@@ -78,12 +85,14 @@ app.post("/tickets", async (req, res) => {
   }
 
   try {
+    const end = ticketCreationDuration.startTimer();
     const result = await pool.query(
       "INSERT INTO tickets (title, description, status) VALUES ($1, $2, $3) RETURNING id",
       [title, description, "open"]
     );
     const ticketId = result.rows[0]?.id;
     ticketsCreated.inc();
+    end();
     logInfo(`ticket_created id=${ticketId}`);
     return res.redirect("/");
   } catch (err) {
